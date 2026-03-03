@@ -16,7 +16,7 @@ secrets:
 
 This is a skeleton repo you can use to design your chatbot. Feel free to change it however you'd like! This repo is compatible with CPU (using your own computer) because it uses models on HuggingFace. You can also load models locally if you'd like, but we recommend using smaller ones.
 
-The end goal: make the chatbot and upload it to a Huggingface Space. We have included instructions for using HuggingFace below. [Here's an example](https://huggingface.co/spaces/sbentley/Boston-School-Choice) of a chatbot made by the course staff. Yours should be much better!
+The end goal: make the chatbot and upload it to a Huggingface Space. We have included instructions for using HuggingFace below. [Here's an example](https://huggingface.co/spaces/annikavi/6C395-BPS-Example) of a chatbot made by the course staff. Yours should be much better!
 
 Note: We encourage you to use AI tools (like Cursor or LLMs) to help you on this assignment. Learn how to leverage these tools.
 
@@ -136,9 +136,9 @@ To deploy your chatbot as a free web interface using Hugging Face Spaces:
    
 
 5. Important Free Tier Considerations:
-   - Use free tier model (already configured in model.py)
-   - Free CPU spaces have 2GB RAM limit
-   - The interface might queue requests when multiple users access it. Sometimes there will be 503 errors.
+   - The default model (meta-llama/Llama-3.1-8B-Instruct) runs via HuggingFace's Inference Providers, not on your Space's CPU. Your Space just hosts the Gradio UI.
+   - Free HuggingFace accounts have a limited monthly credit quota for Inference Providers. You may hit a 402 "Payment Required" error if you exceed it. To conserve credits, test locally when possible (`python app.py`) and avoid unnecessary requests.
+   - The interface might queue requests when multiple users access it. Sometimes there will be 503 errors. Just try again a few seconds later.
 
 6. After Deployment:
    - Your chatbot will be available at: `https://huggingface.co/spaces/YOUR_USERNAME/YOUR_SPACE_NAME`
