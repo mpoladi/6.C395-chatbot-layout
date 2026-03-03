@@ -33,7 +33,7 @@ class Chatbot:
             str: A formatted prompt ready for the model
         
         Example prompt format:
-            "You are a helpful assistant that specializes in Boston schools...
+            "You are a helpful assistant that specializes in...
              User: {user_input}
              Assistant:"
         """
@@ -49,7 +49,7 @@ class Chatbot:
         3. Clean up and return the response
 
         Args:
-            user_input (str): The user's question about Boston schools
+            user_input (str): The user's question
 
         Returns:
             str: The chatbot's response
