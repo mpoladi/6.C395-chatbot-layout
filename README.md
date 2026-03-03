@@ -16,7 +16,7 @@ secrets:
 
 This is a skeleton repo you can use to design your chatbot. Feel free to change it however you'd like! This repo is compatible with CPU (using your own computer) because it uses models on HuggingFace. You can also load models locally if you'd like, but we recommend using smaller ones.
 
-The end goal: make the chatbot and upload it to a Huggingface Space. We have included instructions for using HuggingFace below. [Here's an example](https://huggingface.co/spaces/annikavi/6C395-BPS-Example) of a chatbot made by the course staff. Yours should be much better!
+The end goal: make the chatbot and upload it to a Huggingface Space. We have included instructions for using HuggingFace below. [Here's an example](https://huggingface.co/spaces/annikavi/6C395-BPS-Example) of a chatbot made by the course staff. Yours should be better!
 
 Note: We encourage you to use AI tools (like Cursor or LLMs) to help you on this assignment. Learn how to leverage these tools.
 
