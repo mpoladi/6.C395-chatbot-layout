@@ -1,5 +1,5 @@
 ---
-title: 6.S041 Staff Chatbot
+title: 6.C395 Chatbot
 emoji: 🚀
 colorFrom: blue
 colorTo: red
@@ -12,9 +12,9 @@ secrets:
   - HF_TOKEN
 ---
 
-# Boston Public School Selection Chatbot
+# 6.C395 Chatbot
 
-This is a skeleton repo you can use to design your school choice chatbot. Feel free to change it however you'd like! This repo is compatible with CPU (using your own computer) because it uses models on HuggingFace. You can also load models locally if you'd like, but we recommend using smaller ones.
+This is a skeleton repo you can use to design your chatbot. Feel free to change it however you'd like! This repo is compatible with CPU (using your own computer) because it uses models on HuggingFace. You can also load models locally if you'd like, but we recommend using smaller ones.
 
 The end goal: make the chatbot and upload it to a Huggingface Space. We have included instructions for using HuggingFace below. [Here's an example](https://huggingface.co/spaces/sbentley/Boston-School-Choice) of a chatbot made by the course staff. Yours should be much better!
 
@@ -48,22 +48,24 @@ pip install -r requirements.txt
 ## Repository Organization
 
 ```
-6.s041-chatbot/
+6.c395-chatbot/
 ├── app.py              # Gradio web interface - implement the chat function
 ├── requirements.txt    # Python dependencies
 ├── chatbot_development.ipynb     # Notebook for developing and testing your chatbot
 ├── .env     # Add this file yourself for storing your HF_TOKEN
 ├── config.py     # Holds variables for the models from HuggingFace you will use
-├── chatbot_conversation_example.txt     # Example conversation we might want to have with this chatbot
+├── bps_chatbot_conversation_example.txt     # Example conversation we might want to have with the Option 1 chatbot
+├── mit_chatbot_conversation_example.txt     # Example conversation we might want to have with the Option 2 chatbot
+├── samhsa_chatbot_conversation_example.txt     # Example conversation we might want to have with the Option 3 chatbot
 └── src/
-    └── chat.py        # SchoolChatbot class (implement this)
+    └── chat.py        # Chatbot class (implement this)
 ```
 
 ### Key Files:
 
 - **app.py**: Creates the web interface using Gradio. You only need to implement the `chat` function that generates responses.
 
-- **chat.py**: Contains the `SchoolChatbot` class where you'll implement:
+- **chat.py**: Contains the `Chatbot` class where you'll implement:
   - `format_prompt`: Format user input into proper prompts
   - `get_response`: Generate responses using the model
 
@@ -77,7 +79,7 @@ pip install -r requirements.txt
 ### What You Need to Implement:
 
 1. In `chat.py`:
-   - Complete the `SchoolChatbot` class methods
+   - Complete the `Chatbot` class methods
    - Design how the chatbot formats prompts
    - Implement response generation
 
@@ -103,7 +105,7 @@ To deploy your chatbot as a free web interface using Hugging Face Spaces:
 1. Create a Hugging Face Space:
    - Go to [Hugging Face Spaces](https://huggingface.co/spaces)
    - Click "New Space"
-   - Choose a name for your space (e.g., "boston-school-chatbot")
+   - Choose a name for your space (e.g., "6.C395-chatbot")
    - Select "Gradio" as the SDK
    - Choose "CPU" as the hardware (free tier)
    - Make it "Public" so others can use your chatbot
@@ -111,7 +113,7 @@ To deploy your chatbot as a free web interface using Hugging Face Spaces:
 2. Prepare your files:
    Your repository should already have all needed files:
    ```
-   6.so41-midterm/
+   6.c395-chatbot/
    ├── README.md           # Description of your chatbot
    ├── app.py             # Your Gradio interface
    ├── requirements.txt   # Already set up with needed dependencies
