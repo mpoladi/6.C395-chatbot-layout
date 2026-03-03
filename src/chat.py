@@ -1,13 +1,13 @@
 from huggingface_hub import InferenceClient
 from config import BASE_MODEL, MY_MODEL, HF_TOKEN
 
-class SchoolChatbot:
+class Chatbot:
     """
     This class is extra scaffolding around a model. Modify this class to specify how the model recieves prompts and generates responses.
 
     Example usage:
-        chatbot = SchoolChatbot()
-        response = chatbot.get_response("What schools offer Spanish programs?")
+        chatbot = Chatbot()
+        response = chatbot.get_response("What options are available for me?")
     """
 
     def __init__(self):
@@ -27,7 +27,7 @@ class SchoolChatbot:
         3. Add any special tokens or formatting the model expects
 
         Args:
-            user_input (str): The user's question about Boston schools
+            user_input (str): The user's question
 
         Returns:
             str: A formatted prompt ready for the model
