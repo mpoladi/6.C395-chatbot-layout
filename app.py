@@ -19,13 +19,13 @@ Example Usage:
 """
 
 import gradio as gr
-from src.chat import SchoolChatbot
+from src.chat import Chatbot
 
 def create_chatbot():
     """
     Creates and configures the chatbot interface.
     """
-    chatbot = SchoolChatbot()
+    chatbot = Chatbot()
     
     def chat(message, history):
         """
@@ -67,10 +67,10 @@ def create_chatbot():
     # Create Gradio interface. Customize the interface however you'd like!
     demo = gr.ChatInterface(
         chat,
-        title="Boston Public School Selection Assistant",
-        description="Ask me anything about Boston public schools! Since I am a free tier chatbot, I may give a 503 error when I'm busy. If that happens, please try again a few seconds later.",
+        title="6.C395",
+        description="Ask me anything about [topic]! Since I am a free tier chatbot, I may give a 503 error when I'm busy. If that happens, please try again a few seconds later.",
         examples=[
-            "I live in Jamaica Plain and want to send my child to kindergarten. What schools are available?"
+            "What options are available for someone in my situation?"
         ]
     )
     
