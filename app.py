@@ -1,79 +1,40 @@
 """
-Gradio Web Interface for Boston School Chatbot
+Gradio Web Interface for MIT Course Catalog Chatbot
 
-This script creates a web interface for your chatbot using Gradio.
-You only need to implement the chat function.
-
-Key Features:
-- Creates a web UI for your chatbot
-- Handles conversation history
-- Provides example questions
-- Can be deployed to Hugging Face Spaces
-
-Example Usage:
-    # Run locally:
+Run locally:
     python app.py
-    
-    # Access in browser:
-    # http://localhost:7860
+
+Access in browser:
+    http://localhost:7860
 """
 
 import gradio as gr
 from src.chat import Chatbot
 
 def create_chatbot():
-    """
-    Creates and configures the chatbot interface.
-    """
     chatbot = Chatbot()
-    
+
     def chat(message, history):
-        """
-        TODO:Generate a response for the current message in a Gradio chat interface.
-        
-        This function is called by Gradio's ChatInterface every time a user sends a message.
-        You only need to generate and return the assistant's response - Gradio handles the
-        chat display and history management automatically.
+        return chatbot.get_response(message, history)
 
-        Args:
-            message (str): The current message from the user
-            history (list): List of previous message pairs, where each pair is
-                           [user_message, assistant_message]
-                           Example:
-                           [
-                               ["What schools offer Spanish?", "The Hernandez School..."],
-                               ["Where is it located?", "The Hernandez School is in Roxbury..."]
-                           ]
-
-        Returns:
-            str: The assistant's response to the current message.
-
-
-        Note:
-            - Gradio automatically:
-                - Displays the user's message
-                - Displays your returned response
-                - Updates the chat history
-                - Maintains the chat interface
-            - You only need to:
-                - Generate an appropriate response to the current message
-                - Return that response as a string
-        """
-        # TODO: Generate and return response
-        pass
-
-    
-    
-    # Create Gradio interface. Customize the interface however you'd like!
     demo = gr.ChatInterface(
         chat,
-        title="6.C395",
-        description="Ask me anything about [topic]! Since I am a free tier chatbot, I may give a 503 error when I'm busy. If that happens, please try again a few seconds later.",
+        title="MIT Course Catalog Assistant",
+        description=(
+            "Ask me anything about MIT courses! I can help you find classes that match your "
+            "requirements (CI-H, HASS, REST), interests, and schedule. "
+            "Tip: tell me your major, year, and what requirements you still need — I'll give better recommendations. "
+            "Since I run on the free tier, you may occasionally see a 503 error. Just try again in a few seconds."
+        ),
         examples=[
-            "What options are available for someone in my situation?"
-        ]
+            "I'm a Course 6 junior who still needs a CI-H. I'm interested in AI ethics.",
+            "What are some good intro biology courses with no prerequisites?",
+            "I need a HASS elective about history or philosophy, preferably in the afternoon.",
+            "What machine learning courses are available for undergraduates?",
+            "Tell me about 6.3900 — what are the prerequisites and when is it offered?",
+        ],
     )
-    
+
     return demo
 
 if __name__ == "__main__":
