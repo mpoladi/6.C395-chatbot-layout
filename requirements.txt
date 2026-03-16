@@ -10,3 +10,5 @@ ipywidgets>=8.0.0
 python-dotenv>=1.1.0
 sentence-transformers>=2.2.2
 faiss-cpu>=1.7.4
+bs4>=0.0.2
+tqdm>=4.67.3
