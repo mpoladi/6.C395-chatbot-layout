@@ -216,6 +216,32 @@ class Chatbot:
 
         return "\n".join(lines)
 
+    def _generate_hyde_query(self, user_input: str, fallback: str) -> str:
+        """
+        HyDE (Hypothetical Document Embedding): instead of embedding the user's
+        conversational message, ask the LLM to write a short hypothetical MIT course
+        description that would satisfy the request. Embedding this fake description
+        aligns the query vector with the course-description embedding space, which
+        dramatically improves semantic recall for topic queries.
+        """
+        prompt = (
+            "Write a single 1-2 sentence MIT course description that would satisfy "
+            f"this student request: \"{user_input}\"\n"
+            "Output only the course description. No title, no course number, no preamble."
+        )
+        try:
+            resp = self.client.chat_completion(
+                [{"role": "user", "content": prompt}],
+                max_tokens=80,
+                temperature=0.1,
+            )
+            hyde = resp.choices[0].message.content.strip()
+            if hyde and len(hyde) < 500:
+                return hyde
+        except Exception:
+            pass
+        return fallback
+
     def _parse_clean_history(self, history) -> list:
         """
         Parse Gradio history into clean [{role, content}] dicts.
@@ -323,10 +349,13 @@ class Chatbot:
             topic_query = re.sub(r"\s{2,}", " ", topic_query).strip()
             has_topic = len(topic_query) > 3
 
-            # Use the clean topic string for semantic search; fall back to the
-            # history-augmented query only when there's no identifiable topic.
-            # semantic_query = topic_query if has_topic else search_query
-            search_query = topic_query if has_topic else search_query
+            # Use HyDE (hypothetical course description) for semantic search when
+            # there's a topic — this aligns the query vector with the course-description
+            # embedding space far better than a raw conversational message.
+            # Fall back to the history-augmented query when there's no identifiable topic.
+            if has_topic:
+                search_query = self._generate_hyde_query(user_input, fallback=topic_query)
+            # else: search_query already set to history-augmented query above
 
             # Run separate topic search per department for multi-dept queries
             if has_topic:
