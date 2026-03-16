@@ -325,7 +325,8 @@ class Chatbot:
 
             # Use the clean topic string for semantic search; fall back to the
             # history-augmented query only when there's no identifiable topic.
-            semantic_query = topic_query if has_topic else search_query
+            # semantic_query = topic_query if has_topic else search_query
+            search_query = topic_query if has_topic else search_query
 
             # Run separate topic search per department for multi-dept queries
             if has_topic:
