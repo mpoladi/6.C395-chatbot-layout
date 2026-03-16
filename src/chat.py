@@ -132,6 +132,8 @@ SYSTEM_PROMPT = """You are a helpful MIT course catalog assistant. You help MIT 
 
 STRICT GROUNDING RULE: You will be given course data retrieved from the MIT catalog. You may ONLY recommend courses that appear word-for-word in that data. Never invent, guess, or recall course numbers, titles, or details from your own training. If the data does not contain a suitable course, say so clearly — do not fill the gap with made-up suggestions.
 
+IMPORTANT — MIT renumbered its courses in 2022. Your training data contains old course numbers (e.g. 6.046, 6.854, 6.006, 6.5420) that no longer exist. These are WRONG. Use ONLY the course numbers exactly as they appear in the provided catalog data. If you find yourself about to write a course number not present in the data, stop — you are hallucinating from outdated training knowledge.
+
 Behavior guidelines:
 - If the student's request is vague, ask 1-3 focused clarifying questions before recommending. Useful things to ask about: distribution requirements still needed (CI-H, HASS, REST, etc.), topics of interest, year and major, scheduling preferences (morning vs afternoon, specific days free).
 - When recommending courses, present 3-5 options from the provided data. For each, include: course number and title, prerequisites, distribution requirements fulfilled, and a brief explanation of why it fits.
@@ -215,6 +217,33 @@ class Chatbot:
             lines.append(f"  Description: {desc[:300]}{'...' if len(desc) > 300 else ''}")
 
         return "\n".join(lines)
+
+    def _dedupe_courses(self, courses: list, seen: dict | None = None) -> list:
+        """
+        Merge cross-listed duplicates by normalized title.
+        The first (highest-ranked) entry is kept as the base; any later entries
+        with the same title have their course number appended so the LLM sees
+        e.g. "[6.C06 / 18.C06] Linear Algebra" instead of two separate entries.
+
+        Pass a shared `seen` dict across multiple calls within one turn to
+        deduplicate across separate search passes (e.g. topic search + dist search).
+        `seen` maps normalized title → merged course dict.
+        """
+        if seen is None:
+            seen = {}
+        order = []
+        for c in courses:
+            key = re.sub(r"\s+", " ", (c.get("title") or "")).strip().lower()
+            if key not in seen:
+                seen[key] = dict(c)  # copy so we don't mutate the original
+                order.append(key)
+            else:
+                # Merge course number into the already-seen entry
+                existing_num = seen[key].get("course_number", "")
+                dup_num = c.get("course_number", "")
+                if dup_num and dup_num not in existing_num:
+                    seen[key]["course_number"] = f"{existing_num} / {dup_num}"
+        return [seen[k] for k in order]
 
     def _generate_hyde_query(self, user_input: str, fallback: str) -> str:
         """
@@ -357,12 +386,15 @@ class Chatbot:
                 search_query = self._generate_hyde_query(user_input, fallback=topic_query)
             # else: search_query already set to history-augmented query above
 
+            # Shared deduplication state across all search passes this turn
+            _seen_titles: dict = {}
+
             # Run separate topic search per department for multi-dept queries
             if has_topic:
                 if departments:
                     for dept in departments:
                         dept_filters = {**base_filters, "department": dept}
-                        results = search_courses(search_query, filters=dept_filters, top_k=8)
+                        results = self._dedupe_courses(search_courses(search_query, filters=dept_filters, top_k=8), _seen_titles)
                         retrieved_this_turn.extend(results)
                         if results:
                             blocks = [self._format_course(c) for c in results]
@@ -372,9 +404,9 @@ class Chatbot:
                         else:
                             context_parts.append(f"Topic matches in {dept}: No courses found.")
                 else:
-                    results = search_courses(
+                    results = self._dedupe_courses(search_courses(
                         search_query, filters=base_filters if base_filters else None, top_k=10
-                    )
+                    ), _seen_titles)
                     retrieved_this_turn.extend(results)
                     if results:
                         blocks = [self._format_course(c) for c in results]
@@ -386,16 +418,14 @@ class Chatbot:
 
             # Distribution requirement search
             if dist_req == "HASS_ANY":
-                seen = set()
                 dist_results = []
                 for subtype in HASS_SUBTYPES:
                     sub_filters = {**base_filters, "distribution_requirement": subtype}
                     if len(departments) == 1:
                         sub_filters["department"] = departments[0]
-                    for c in search_courses(search_query, filters=sub_filters, top_k=4):
-                        if c["course_number"] not in seen:
-                            dist_results.append(c)
-                            seen.add(c["course_number"])
+                    dist_results.extend(self._dedupe_courses(
+                        search_courses(search_query, filters=sub_filters, top_k=4), _seen_titles
+                    ))
                 retrieved_this_turn.extend(dist_results)
                 label = "HASS (any subtype) courses" if has_topic else "Courses matching HASS (any subtype)"
                 if dist_results:
@@ -407,7 +437,7 @@ class Chatbot:
                 dist_filters = {**base_filters, "distribution_requirement": dist_req}
                 if len(departments) == 1:
                     dist_filters["department"] = departments[0]
-                dist_results = search_courses(search_query, filters=dist_filters, top_k=10)
+                dist_results = self._dedupe_courses(search_courses(search_query, filters=dist_filters, top_k=10), _seen_titles)
                 retrieved_this_turn.extend(dist_results)
                 label = f"{dist_req} courses" if has_topic else f"Courses matching {dist_req}"
                 if dist_results:
@@ -418,7 +448,7 @@ class Chatbot:
 
             # Fallback: if neither search ran (no topic, no dist filter)
             if not context_parts:
-                results = search_courses(search_query, top_k=10)
+                results = self._dedupe_courses(search_courses(search_query, top_k=10), _seen_titles)
                 retrieved_this_turn.extend(results)
                 blocks = [self._format_course(c) for c in results]
                 context_parts.append("Relevant courses:\n\n" + "\n\n".join(blocks))

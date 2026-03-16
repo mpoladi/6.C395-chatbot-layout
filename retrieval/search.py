@@ -73,6 +73,26 @@ def _load() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Special-program exclusion
+# ---------------------------------------------------------------------------
+
+# Course-number prefixes for special/interdisciplinary programs that should not
+# appear in general search results. Only included when the user explicitly asks
+# for one of these programs by name.
+_SPECIAL_PREFIXES = {
+    "AS", "CC", "CG", "CSB", "CSE", "EC", "EM", "ES",
+    "HST", "IDS", "MAS", "MS", "NS", "SCM", "SP",
+    "STS", "SWE",
+}
+
+def _is_special_program(course: Dict) -> bool:
+    """Return True if the course belongs to a special/interdisciplinary program."""
+    num = (course.get("course_number") or "").strip()
+    prefix = num.split(".")[0].upper()
+    return prefix in _SPECIAL_PREFIXES
+
+
+# ---------------------------------------------------------------------------
 # Structured filtering
 # ---------------------------------------------------------------------------
 
@@ -105,6 +125,10 @@ def _apply_filters(
 
     result = []
     for i, c in enumerate(courses):
+        # ---- special program exclusion (default off unless dept filter targets one) ----
+        if not dept_filter and _is_special_program(c):
+            continue
+
         # ---- department ----
         if dept_filter:
             depts = [d.lower() for d in (c.get("departments") or [])]
